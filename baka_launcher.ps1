@@ -1,4 +1,4 @@
-﻿Add-Type -AssemblyName System.Windows.Forms
+Add-Type -AssemblyName System.Windows.Forms
 Add-Type -AssemblyName System.Drawing
 
 Add-Type @"
@@ -230,9 +230,17 @@ function Stop-Dance {
     $global:DanceStart = $null
 }
 
+function Kill-AllBakas {
+    Stop-Dance
+    # 强制结束所有 baka.exe 和 滚木baka.exe
+    & taskkill /F /IM baka.exe /T *> $null
+    & taskkill /F /IM 滚木baka.exe /T *> $null
+    $global:BakaList.Clear()
+}
+
 $form = New-Object System.Windows.Forms.Form
 $form.Text = "baka launcher"
-$form.Size = New-Object System.Drawing.Size(320, 230)
+$form.Size = New-Object System.Drawing.Size(320, 280)
 $form.StartPosition = "CenterScreen"
 $form.FormBorderStyle = "FixedDialog"
 $form.MaximizeBox = $false
@@ -263,9 +271,20 @@ $btnDance.Location = New-Object System.Drawing.Point(160, 80)
 $btnDance.Size = New-Object System.Drawing.Size(120, 40)
 $form.Controls.Add($btnDance)
 
+# 新增：一键关闭按钮 (红色)
+$btnKill = New-Object System.Windows.Forms.Button
+$btnKill.Text = "物理超度 (关闭全部)"
+$btnKill.Location = New-Object System.Drawing.Point(20, 130)
+$btnKill.Size = New-Object System.Drawing.Size(260, 35)
+$btnKill.BackColor = [System.Drawing.Color]::FromArgb(220, 80, 80)
+$btnKill.ForeColor = [System.Drawing.Color]::White
+$btnKill.FlatStyle = [System.Windows.Forms.FlatStyle]::Flat
+$btnKill.FlatAppearance.BorderSize = 0
+$form.Controls.Add($btnKill)
+
 $statusLabel = New-Object System.Windows.Forms.Label
 $statusLabel.Text = ""
-$statusLabel.Location = New-Object System.Drawing.Point(20, 135)
+$statusLabel.Location = New-Object System.Drawing.Point(20, 180)
 $statusLabel.Size = New-Object System.Drawing.Size(260, 40)
 $form.Controls.Add($statusLabel)
 
@@ -292,6 +311,11 @@ $btnDance.Add_Click({
         Start-Dance
         $statusLabel.Text = "跳舞中..."
     }
+})
+
+$btnKill.Add_Click({
+    Kill-AllBakas
+    $statusLabel.Text = "所有 baka 已被物理超度！"
 })
 
 $timer = New-Object System.Windows.Forms.Timer
